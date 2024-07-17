@@ -1,1 +1,1 @@
-# OctopusOdorUsePlumes
+# OctopusUseOdorPlumes
