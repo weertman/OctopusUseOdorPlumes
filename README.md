@@ -23,13 +23,8 @@ This study presents the first laboratory observations of octopuses performing ch
 
 ---
 
-### Demo
-
 <p align="center">
-  <video width="600" controls>
-    <source src="assets/octopus_tracking_demo.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
+  <img src="assets/octopus_tracking_demo.gif" alt="Octopus chemosensory tracking demonstration" width="600">
   <br>
   <em>Octopus rubescens performing chemosensory-plume-guided navigation in the experimental flume</em>
 </p>
