@@ -198,3 +198,57 @@ Changing the rotation convention, smoothing, background subtraction, or frame se
 ## Validation scope
 
 This guide was checked against the repository's generation code and the live Dropbox trajectories layout. The single example `khorne/Food_eaten/0/rotated_bg_sub_fc_video.mp4` was downloaded, fully decoded with FFmpeg and the Python example, and visually sampled. The whole collection and notebook regeneration were **not** rerun or audited.
+
+## 7. Work with the whole video set as one analysis dataset
+
+**Treat the collection as one indexed dataset, not one giant video or an array of every frame in RAM.** Keep the individual MP4s and run the same analysis over each trial. This preserves trial boundaries and makes interrupted work easier to resume.
+
+### Download and inventory the collection
+
+1. Use the **trajectories Dropbox share in section 1**. Download all animal folders, or download them in condition/trial batches if a whole-folder ZIP fails. Whole folders include other products, so they require more storage than the rotated MP4s alone. If downloading just the rotated files, keep the same animal/condition/trial hierarchy. Do not include `shells` as an animal or mix diagnostic MP4s into the input set.
+2. Extract/merge each batch under a single local `trajectories/` directory. Check for accidental extra nesting such as `trajectories/trajectories/` and do not flatten the folders. Keep originals on disk; use a separate directory for analysis results.
+3. Run `inspect_rotated.py` from section 4 against that root. **It already processes every matching trial**, not only the example. Its manifest is the starting index for the whole dataset; resolve `CHECK_FRAME_COUNT` entries before analysis.
+4. Compare local animal/condition/trial folders with the Dropbox folders you intended to download. The manifest lists **files present locally**, not files missing from the share. A successful scan does not prove the download is complete. Record which batches were downloaded and any missing or excluded trials.
+
+### Make a dataset-level coverage table
+
+In the same activated environment, install pandas with `python -m pip install pandas`. Save this as `summarize_dataset.py` alongside `inspect_rotated.py` and run `python summarize_dataset.py`:
+
+```python
+from pathlib import Path
+import pandas as pd
+
+manifest = Path("inspection/video_manifest.csv")
+videos = pd.read_csv(manifest, dtype={
+    "animal": str, "condition": str, "trial": str, "relative_path": str
+})
+keys = ["animal", "condition", "trial"]
+if videos.empty or videos.duplicated(keys).any():
+    raise ValueError("Empty manifest or duplicate trial identities: inspect the inputs.")
+if not videos["status"].eq("OK").all():
+    raise ValueError("Resolve flagged videos before using this manifest for analysis.")
+
+coverage = videos.groupby(["animal", "condition"], as_index=False).agg(
+    trials=("trial", "size"),
+    frames=("decoded_frames", "sum"),
+    seconds=("decoded_seconds", "sum"),
+)
+coverage.to_csv(manifest.parent / "coverage_by_animal_condition.csv", index=False)
+print(coverage.to_string(index=False))
+print(f"Inventoried {len(videos)} local trials across {videos['animal'].nunique()} animals.")
+```
+
+This summarizes **coverage**, not behavior. Absent animal/condition combinations are absent rows, not evidence of zero behavior. Check the table for unexpected gaps, unequal recording durations, and conditions represented by only a subset of animals. The script replaces its coverage CSV when rerun.
+
+### Apply your analysis to every trial, then combine the outputs
+
+Use the per-frame loop in `inspect_rotated.py` as the starting point: replace its `Add per-frame analysis here` comment with your feature extraction, model inference, or annotation lookup. For a production analysis, keep this separate from the inspection script and use the reviewed manifest to select inputs.
+
+- **Process sequentially or in bounded batches.** Decode one video at a time and write results as you go. For a GPU model, collect only a small batch of frames, run inference, write the predictions, then discard that batch. Do not build a list of all decoded videos. Start with one worker; add parallel video workers only after checking RAM, disk throughput, and GPU memory.
+- **Give every result a stable key:** `animal`, `condition`, `trial`, and zero-based `frame_index`. Also retain `relative_path`, measured `fps`, and `time_s = frame_index / fps`. For example, a per-frame output might have columns `animal,condition,trial,frame_index,time_s,feature_value,qc_flag`. Frames sampled every N steps still keep their **original** frame indices, not a new consecutive numbering.
+- **Save one result file per trial**, for example `analysis/run_01/khorne/Food_eaten/0/features.csv`. Use a new run directory when changing the model or parameters. Save the input manifest, environment versions, code version, model identifier, and analysis settings with the run. Write to a temporary filename and rename it only when the trial finishes; skip completed outputs on restart only if their source and analysis settings still match. Record failures separately rather than silently treating them as completed trials.
+- **Combine tables, not MP4s.** Concatenate the per-trial feature tables for plotting or statistics, keeping all identity columns. For large frame-level tables, use partitioned Parquet or a database rather than one ever-growing in-memory dataframe. Often it is enough to compute one summary row per trial first, then combine those much smaller tables. Reset temporal models, frame differences, and rolling windows at every trial boundary.
+- **Use appropriate experimental units.** Frames within a trial and trials from the same animal are not independent animals. For condition comparisons, retain animal identity and use animal-level summaries or an appropriate repeated-measures/hierarchical analysis. Pooling all frames directly gives longer videos and animals with more trials more weight. Report included animals/trials, analyzed duration, and exclusions, not only a frame count.
+- **Keep coordinate systems straight.** These videos are suitable for body-centered appearance/posture analyses. Arena-relative movement, heading versus flow, and plume position require the corresponding full-frame videos/tracking. Never join those data to the rotated videos solely by row number without checking the offsets and frame-count caveats in section 2.
+
+A practical first pass is: **download all intended trials → inventory and inspect → run the analysis on one trial → batch the same analysis across the reviewed manifest → combine trial summaries → compare conditions while retaining animal identity**. The coverage code above was tested on the downloaded example; it is not a claim that every shared trial has been downloaded or analyzed.
