@@ -1,6 +1,31 @@
 # Working with the 1T octopus-centered, rotated videos
 
+*Written by gpt-6-astra (via Hermes Agent), at Willem Weertman's request. The examples below are extracted from real recordings, not AI-generated imagery.*
+
 This guide is for collaborators who want to work with **videos from the single-target (1T) experiment**, especially in an octopus-centered reference frame. Start with the **existing processed MP4s**; you do not need to train or run DeepLabCut, download all the full-frame recordings, or rerun the paper's notebooks just to use them.
+
+## Visual examples: what the representations look like
+
+All four panels show the **same trial, `khorne / Food_eaten / 0`, at frame 5700 (570.0 s into the exported clip)**. This is a selected illustrative moment, not a summary of the whole dataset.
+
+![Four real-video representations: full-frame arena, background-subtracted arena, centered crop without rotation, and centered rotated background-subtracted octopus.](assets/1T-video-examples/representations.png)
+
+| Panel | What you see | What it is useful for |
+| --- | --- | --- |
+| **A — Full frame** | The animal in the arena, including walls and lighting/background structure | Arena-relative position, movement, and checking the original visual context |
+| **B — Background-subtracted full frame** | The same frame with background suppressed; animal position stays in arena coordinates | Seeing the foreground while preserving spatial context; residual background is still visible |
+| **C — Centered, not rotated** | A local 600 × 600 tracking crop; the animal stays near the center but orientation changes | Understanding the difference between centering and body-axis alignment. This is a **local intermediate**, not a file promised in the shared trial folder |
+| **D — Centered, rotated, background-subtracted** | The shared `rotated_bg_sub_fc_video.mp4` export | The recommended starting point for body-centered posture/appearance analysis |
+
+Panels are resized independently to fit the figure: **their displayed pixel scales are not equal**. No contrast enhancement was applied. The dim animal, residual background, crop boundaries, and rotation padding are real properties of the videos, not binary masks. Centering and rotation depend on tracking and do not eliminate all jitter or tracking errors.
+
+### The same representations in motion
+
+The loop below shows a six-second interval starting at 570.0 s, displaying every other source frame at 5 fps for real-time playback. It is a reduced-size GIF preview, not an analysis input; use the original MP4s for measurements. The image above provides a larger still for inspection.
+
+![Six-second synchronized preview of full-frame, background-subtracted, centered-only, and centered-rotated octopus representations.](assets/1T-video-examples/representations.gif)
+
+**Source/provenance:** A and C were extracted from the local archive's matching `khorne__2020_12_2020__17_41_26_100__0__6000.mp4` and `fc__khorne__2020_12_2020__17_41_26_100__0__6000.mp4`. B and D were extracted from the shared trial's `background_sub_ff_video.mp4` and `rotated_bg_sub_fc_video.mp4`. All four report 10 fps; A/B/C have 6,000 frames and D has 5,999. The sampled frames were visually checked for corresponding posture. This example does not establish alignment for other trials. [Source checksums and frame indices](assets/1T-video-examples/provenance.json) and the [rendering script](scripts/render_video_examples.py) are included for reproducibility. To rerender, install `opencv-python-headless` and `Pillow`, then run the script with `--help` to see the four input-file arguments, output directory, frame index, and TrueType font path. It writes documentation assets only; it does not regenerate the tracking or processed videos.
 
 ## 1. Download the right files
 
@@ -200,6 +225,8 @@ Changing the rotation convention, smoothing, background subtraction, or frame se
 This guide was checked against the repository's generation code and the live Dropbox trajectories layout. The single example `khorne/Food_eaten/0/rotated_bg_sub_fc_video.mp4` was downloaded, fully decoded with FFmpeg and the Python example, and visually sampled. The whole collection and notebook regeneration were **not** rerun or audited.
 
 ## 7. Work with the whole video set as one analysis dataset
+
+*Written by gpt-6-astra (via Hermes Agent), at Willem Weertman's request.*
 
 **Treat the collection as one indexed dataset, not one giant video or an array of every frame in RAM.** Keep the individual MP4s and run the same analysis over each trial. This preserves trial boundaries and makes interrupted work easier to resume.
 

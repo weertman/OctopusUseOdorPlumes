@@ -1,0 +1,73 @@
+{
+  "trial": "khorne/Food_eaten/0",
+  "sources": {
+    "full": {
+      "filename": "khorne__2020_12_2020__17_41_26_100__0__6000.mp4",
+      "sha256": "1ca609e8126ee64661e6a61e664a42bbb26143de01c31611e8e1f944f3b1d1c4",
+      "width": 1920,
+      "height": 1200,
+      "fps": 10.0,
+      "frames": 6000
+    },
+    "background": {
+      "filename": "background_sub_ff_video.mp4",
+      "sha256": "a88d2b5e503290c9df28ca6fd4fc42d1f231c05f6350a09b91469010b75e6c64",
+      "width": 1920,
+      "height": 1200,
+      "fps": 10.0,
+      "frames": 6000
+    },
+    "centered": {
+      "filename": "fc__khorne__2020_12_2020__17_41_26_100__0__6000.mp4",
+      "sha256": "a29269efd25785a1a7d1e923ddf115cc9610a64bf54d8882b2e2f3cf4b6c2809",
+      "width": 600,
+      "height": 600,
+      "fps": 10.0,
+      "frames": 6000
+    },
+    "rotated": {
+      "filename": "rotated_bg_sub_fc_video.mp4",
+      "sha256": "317809523a1604e6d01e92864f6c73af3f21c7bc597c988378d7a66242fba06b",
+      "width": 600,
+      "height": 600,
+      "fps": 10.0,
+      "frames": 5999
+    }
+  },
+  "still_frame": 5700,
+  "animation_frame_indices": [
+    5700,
+    5702,
+    5704,
+    5706,
+    5708,
+    5710,
+    5712,
+    5714,
+    5716,
+    5718,
+    5720,
+    5722,
+    5724,
+    5726,
+    5728,
+    5730,
+    5732,
+    5734,
+    5736,
+    5738,
+    5740,
+    5742,
+    5744,
+    5746,
+    5748,
+    5750,
+    5752,
+    5754,
+    5756,
+    5758
+  ],
+  "animation_frame_duration_ms": 200,
+  "display": "Aspect-preserving resize; no intensity adjustment; no generated animal imagery",
+  "note": "Full frame and centered crop from local archive; background and rotated exports from shared Dropbox. Centered crop is a local intermediate, not promised in the share."
+}

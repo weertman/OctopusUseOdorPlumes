@@ -17,7 +17,13 @@ This study presents the first laboratory observations of octopuses performing ch
 
 ### Working with the 1T videos
 
+*Written by gpt-6-astra (via Hermes Agent), at Willem Weertman's request.*
+
 For collaborators: **[Download and use the octopus-centered, rotated videos](docs/1T-video-quickstart.md)**. The guide explains which existing Dropbox MP4s to choose, how to preserve animal/condition/trial identities, how to verify and read the videos in Python, and the processing and frame-alignment caveats. No DeepLabCut setup is needed to use the already-processed videos.
+
+[![Real-video comparison of full-frame, background-subtracted, centered, and centered-rotated representations.](docs/assets/1T-video-examples/representations.png)](docs/1T-video-quickstart.md#visual-examples-what-the-representations-look-like)
+
+The guide includes a labeled comparison and an animated example from the same trial.
 
 ### Key Features
 - 🎥 DeepLabCut pose estimation models for octopus eye tracking
